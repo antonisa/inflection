@@ -93,10 +93,8 @@ def get_chars(l):
     flat_list = [char for word in l for char in word]
     return list(set(flat_list))
 
-L1 = sys.argv[1]
 L2 = sys.argv[2]
 DATA_PATH = "../2019/task1/"+L1+"--"+L2+"/"
-HIGH_PATH = DATA_PATH + L1+"-train-high"
 LOW_PATH = DATA_PATH + L2+ "-train-low"
 DEV_PATH = DATA_PATH + L2+ "-dev"
 

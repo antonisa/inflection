@@ -285,8 +285,6 @@ char2int = {c:i for i,c in enumerate(characters)}
 int2tag = list(tags)
 tag2int = {c:i for i,c in enumerate(tags)}
 
-#counts, change, allowed = myutil.get_probs2(low_i+dev_i,low_o+dev_o,low_t+dev_t, characters, tags)
-
 VOCAB_SIZE = len(characters)
 TAG_VOCAB_SIZE = len(tags)
 
