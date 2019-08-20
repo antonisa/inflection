@@ -1,107 +1,119 @@
 # -*- coding: utf-8 -*-
 
-import sys
+import argparse
+import codecs
 import dynet as dy
-from random import random,shuffle
-import myutil
-import numpy as np
 import matplotlib 
 matplotlib.use('agg') 
 import matplotlib.pyplot as plt
+import myutil
+import numpy as np
 from operator import itemgetter
-import codecs
+import os, sys
+from random import random,shuffle
 
-#L1 = "bengali"
-#L2 = "greek"
-L1 = sys.argv[1]
-if ',' in L1:
-    L1s = L1.split(',')
-else:
-    L1s = [L1]
-L2 = sys.argv[2]
 
-L2 = sys.argv[2]
 
-#DATA_PATH = "../2019/task1/"+L1+"--"+L2+"/"
-DATA_PATH = "../all_data/"
-#DATA_PATH = "../task1/"+L1+"--"+L2+"/"
-#HIGH_PATH = DATA_PATH + L1+"-train-high"
-LOW_PATH = DATA_PATH + L2+ "-train-low"
-DEV_PATH = DATA_PATH + L2+ "-dev"
-HALL_PATH = DATA_PATH + L2+ "-hall"
-TEST_PATH = DATA_PATH + L2+ "-test-covered"
+parser = argparse.ArgumentParser()
+parser.add_argument("--datapath", help="path to data", type=str)
+parser.add_argument("--L1", help="transfer languages (split with comma for multiple ones)", type=str)
+parser.add_argument("--L2", help="test languages", type=str)
+parser.add_argument("--mode", help="usage mode", type=str,
+    choices=['train','test','test-dev','draw-dev','test-dev-ensemble','test-ensemble','test-two-ensemble','test-three-ensemble',
+    'test-all-ensemble'], default='')
+parser.add_argument("--setting", help="data setting", type=str, choices=['original','swap','low',], default='original')
+parser.add_argument("--modelpath", help="path to store the models", type=str, default='./models')
+parser.add_argument("--figurepath", help="path to store the output attention figures", type=str, default='./figures')
+parser.add_argument("--outputpath", help="path to store the inflected outputs on the test set", type=str, default='./outputs')
+parser.add_argument("--use_hall", help="whether to use a hallucinated dataset (def: False)", action="store_true")
+parser.add_argument("--only_hall", help="only use the hallucinated dataset to train (def: False)", action="store_true")
+parser.add_argument("--predict_lang", help="use the language discriminator auxiliary task (def: False)", action="store_true")
+parser.add_argument("--use_att_reg", help="use attention regularization on the lemma attention (def: False)", action="store_true")
+parser.add_argument("--use_tag_att_reg", help="use attention regularization on the tag attention (def: False)", action="store_true")
+args = parser.parse_args()
 
-MODEL_DIR = "../models-test/"+L1+"-"+L2 + "/"
-FIGURE_DIR = "../figures-test/"+L1+"-"+L2+"/"
-OUTPUT_DIR = "../outputs-test/"+L1+"-"+L2+"/"
+L1 = args.L1
+L1s = L1.split(',')
+
+L2 = args.L2
+DATA_PATH = args.datapath
+
+if not os.path.isdir(DATA_PATH):
+    print("Wrong data path, the provided one does not exist")
+    sys.exit()
+LOW_PATH = os.path.join(DATA_PATH, L2+ "-train")
+DEV_PATH = os.path.join(DATA_PATH, L2+ "-dev")
+HALL_PATH = os.path.join(DATA_PATH, L2+ "-hall")
+TEST_PATH = os.path.join(DATA_PATH, L2+ "-test-covered")
+
+if not os.path.isdir(args.modelpath):
+    os.mkdir(args.modelpath)
+if not os.path.isdir(args.figurepath):
+    os.mkdir(args.figurepath)
+if not os.path.isdir(args.outputpath):
+    os.mkdir(args.outputpath)
+
+
+MODEL_DIR = os.path.join(args.modelpath, L1+"-"+L2)
+if not os.path.isdir(MODEL_DIR):
+    os.mkdir(MODEL_DIR)
+
+FIGURE_DIR = os.path.join(args.figurepath, L1+"-"+L2)
+if not os.path.isdir(FIGURE_DIR):
+    os.mkdir(FIGURE_DIR)
+
+OUTPUT_DIR = os.path.join(args.outputpath, L1+"-"+L2)
+if not os.path.isdir(OUTPUT_DIR):
+    os.mkdir(OUTPUT_DIR)
+
 
 TRAIN=False
-TRAIN_RANKER = False
 TEST = False
-TEST_WITH_RANKER = False
 TEST_ENSEMBLE = False
 TEST_TWO_ENSEMBLE = False
 TEST_THREE_ENSEMBLE = False
 TEST_ALL_ENSEMBLE = False
-TEST_ENSEMBLE_WITH_RANKER = False
-TEST_TWO_ENSEMBLE_WITH_RANKER = False
-TEST_THREE_ENSEMBLE_WITH_RANKER = False
-TEST_ALL_ENSEMBLE_WITH_RANKER = False
 TEST_DEV = False
 DRAW_DEV = False
-TEST_DEV_WITH_RANKER = False
 TEST_DEV_ENSEMBLE = False
-if sys.argv[3] == "train":
+
+if args.mode == "train":
     TRAIN = True
-elif sys.argv[3] == "test":
+elif args.mode == "test":
     TEST = True
-elif sys.argv[3] == "test-dev":
+elif args.mode == "test-dev":
     TEST_DEV = True
-elif sys.argv[3] == "draw-dev":
+elif args.mode == "draw-dev":
     DRAW_DEV = True
-elif sys.argv[3] == "test-dev-ensemble":
+elif args.mode == "test-dev-ensemble":
     TEST_DEV_ENSEMBLE = True
-elif sys.argv[3] == "test-ensemble":
+elif args.mode == "test-ensemble":
     TEST_ENSEMBLE = True
-elif sys.argv[3] == "test-two-ensemble":
+elif args.mode == "test-two-ensemble":
     TEST_TWO_ENSEMBLE = True
-elif sys.argv[3] == "test-three-ensemble":
+elif args.mode == "test-three-ensemble":
     TEST_THREE_ENSEMBLE = True
-elif sys.argv[3] == "test-all-ensemble":
+elif args.mode == "test-all-ensemble":
     TEST_ALL_ENSEMBLE = True
-elif sys.argv[3] == "test-ensemble-rank":
-    TEST_ENSEMBLE_WITH_RANKER = True
-elif sys.argv[3] == "test-two-ensemble-rank":
-    TEST_TWO_ENSEMBLE_WITH_RANKER = True
-elif sys.argv[3] == "test-three-ensemble-rank":
-    TEST_THREE_ENSEMBLE_WITH_RANKER = True
-elif sys.argv[3] == "test-all-ensemble-rank":
-    TEST_ALL_ENSEMBLE_WITH_RANKER = True
-elif sys.argv[3] == "train-ranker":
-    TRAIN_RANKER = True
-elif sys.argv[3] == "test-rank":
-    TEST_WITH_RANKER = True
-elif sys.argv[3] == "test-dev-rank":
-    TEST_DEV_WITH_RANKER = True
 
 USE_HALL = False
-if "--use_hall" in sys.argv:
+if args.use_hall:
     USE_HALL = True
 
 ONLY_HALL = False
-if "--only_hall" in sys.argv:
+if args.only_hall:
     ONLY_HALL = True
 
 
-if sys.argv[4] == "original":
+if args.setting == "original":
     ORIGINAL = True
     SWAP = False
     LOW = False
-elif sys.argv[4] == "swap":
+elif args.setting == "swap":
     ORIGINAL = False
     SWAP = True
     LOW = False
-elif sys.argv[4] == "low":
+elif args.setting == "low":
     ORIGINAL = False
     SWAP = False
     LOW = True
@@ -122,9 +134,6 @@ if ONLY_HALL:
     MODEL_NAME += "hallonly."
 
 
-PREDICT_LANG = False
-USE_ALLOWED = False
-USE_EXTRA = False
 MAX_PREDICTION_LEN_DEF = 20
 if L2 == "kabardian":
     MAX_PREDICTION_LEN_DEF = 25
@@ -154,18 +163,18 @@ elif L2 == "yiddish":
     MAX_PREDICTION_LEN_DEF = 22
 
 
-
 LENGTH_NORM_WEIGHT = 0.1
 EXTRA_WEIGHT = 0.3
 USE_ATT_REG = False
 USE_TAG_ATT_REG = False
+PREDICT_LANG = False
 
-if "--predict_lang" in sys.argv:
+if args.predict_lang:
     PREDICT_LANG = True
     MODEL_NAME += "lang."
-if "--use_att_reg" in sys.argv:
+if args.use_att_reg:
     USE_ATT_REG = True
-if "--use_tag_att_reg" in sys.argv:
+if args.use_tag_att_reg:
     USE_TAG_ATT_REG = True
 
 if USE_HALL:
@@ -179,7 +188,7 @@ if USE_HALL:
     lids_1 = [0]*len(low_i) 
     high_i, high_o, high_t = [], [], []
     for j,L1 in enumerate(L1s):
-        HIGH_PATH = DATA_PATH + L1+"-train-high"
+        HIGH_PATH = os.path.join(DATA_PATH, L1+ "-train")
         ti, to, tt = myutil.read_data(HIGH_PATH)
         high_i += ti
         high_o += to
@@ -202,7 +211,7 @@ else:
     high_i, high_o, high_t = [], [], []
     lids_1 = [0]*len(low_i) 
     for j,L1 in enumerate(L1s):
-        HIGH_PATH = DATA_PATH + L1+"-train-high"
+        HIGH_PATH = os.path.join(DATA_PATH, L1+ "-train")
         ti, to, tt = myutil.read_data(HIGH_PATH)
         high_i += ti
         high_o += to
@@ -224,10 +233,11 @@ if SWAP:
         low_i, low_o, low_t = list(dev_i), list(dev_o), list(dev_t)
         dev_i, dev_o, dev_t = tmp1, tmp2, tmp3
 
-print(len(high_i), len(high_o), len(high_t))
-print(len(low_i), len(low_o), len(low_t))
-print(len(dev_i), len(dev_o), len(dev_t))
-print(len(test_i), len(test_t))
+print("Data lengths")
+print("transfer-language", len(high_i), len(high_o), len(high_t))
+print("test-language", len(low_i), len(low_o), len(low_t))
+print("dev", len(dev_i), len(dev_o), len(dev_t))
+print("test", len(test_i), len(test_t))
 
 def compute_mixing_weights(l):
     if l == 3:
@@ -294,24 +304,20 @@ MINIBATCH_SIZE = 1
 COPY_WEIGHT = 0.8
 DROPOUT_PROB = 0.2
 
-print(characters)
-print(VOCAB_SIZE)
-print(tags)
-print(TAG_VOCAB_SIZE)
+print("Characters:",characters)
+print("Vocab size:", VOCAB_SIZE)
+print("All tags:", tags)
+print("Tag vocab size:", TAG_VOCAB_SIZE)
 
 
 def run_lstm(init_state, input_vecs):
     s = init_state
-
     out_vectors = []
     for vector in input_vecs:
         s = s.add_input(vector)
         out_vector = s.output()
         out_vectors.append(out_vector)
     return out_vectors
-
-
-
 
 
 class InflectionModel:
@@ -1015,7 +1021,7 @@ def ensemble_generate_nbest(inf_models, ensemble_weights, in_seq, tag_seq, beam_
 
 
 def test_beam_ensemble(inf_models, weights, beam_size=4, fn=None):
-    ks = range(len(test_i))
+    ks = list(range(len(test_i)))
     with codecs.open(fn, 'w', 'utf-8') as outf:
         for j,k in enumerate(ks):
             out = ensemble_generate_nbest(inf_models, weights, test_i[k], test_t[k], beam_size)
@@ -1032,41 +1038,13 @@ def test_beam_ensemble(inf_models, weights, beam_size=4, fn=None):
     return
 
 
-def test_beam_ensemble_with_ranker(inf_models, weights, rank_model, beam_size=8, fn=None):
-    ks = range(len(test_i))
-    with codecs.open(fn, 'w', 'utf-8') as outf:
-        for j,k in enumerate(ks):
-            out = ensemble_generate_nbest(inf_models, weights, test_i[k], test_t[k], beam_size)
-            if len(out):
-                best_loss = -1000000
-                best_output = ""
-                for output in out:
-                    dy.renew_cg()
-                    word = [c for c in output[2] if c != EOS]
-                    ranker_loss = rank_model.get_loss(word, test_t[k]).value()
-                    if output[0]*ranker_loss > best_loss:
-                            best_loss = output[0]*ranker_loss
-                            best_output = ''.join(word)
-            else:
-                print("CRAP", k)
-            if not best_output:
-                print("No best output")
-                best_output = ''.join([c for c in test_i[k] if c != EOS])
-
-            outf.write(''.join(test_i[k]) + '\t' + best_output + '\t' + ';'.join(test_t[k]) + '\n')
-
-    return
-
-
 
 def eval_dev_beam_ensemble(inf_models, weights, beam_size=4, K=100, epoch=0):
     if K == "all":
         K = len(dev_i)
-    ks = range(len(dev_i))
+    ks = list(range(len(dev_i)))
     shuffle(ks)
     ks = ks[:K]
-    #K = len(dev_i)
-    #ks = range(K)
     outs = []
     levs = []
     correct = 0.0
@@ -1091,49 +1069,9 @@ def eval_dev_beam_ensemble(inf_models, weights, beam_size=4, K=100, epoch=0):
     return accuracy, avg_edit
 
 
-def eval_dev_beam_ensemble_with_ranker(inf_models, weights, rank_model, beam_size=4, K=100, epoch=0):
-    if K == "all":
-        K = len(dev_i)
-    ks = range(len(dev_i))
-    shuffle(ks)
-    ks = ks[:K]
-    #K = len(dev_i)
-    #ks = range(K)
-    outs = []
-    levs = []
-    correct = 0.0
-    for j,k in enumerate(ks):
-        out = ensemble_generate_nbest(inf_models, weights, dev_i[k], dev_t[k], beam_size)
-        if len(out):
-            best_loss = -1000000
-            best_output = ""
-            for output in out:
-                dy.renew_cg()
-                word = [c for c in output[2] if c != EOS]
-                ranker_loss = rank_model.get_loss(word, dev_t[k]).value()
-                if output[0]*ranker_loss > best_loss:
-                        best_loss = output[0]*ranker_loss
-                        best_output = ''.join(word)
-        else:
-            print("CRAP", k)
-        if not best_output:
-            print("No best output")
-            best_output = ''.join([c for c in dev_i[k] if c != EOS])
-
-        outs.append(best_output)
-        lev = myutil.edit_distance(best_output, dev_o[k])
-        levs.append(lev)
-        if list(best_output) == dev_o[k]:
-            correct += 1
-
-    accuracy = correct/float(K)
-    avg_edit = np.average(np.array(levs))
-    return accuracy, avg_edit
-
-
 
 def test_beam(inf_model, beam_size=4, fn=None):
-    ks = range(len(test_i))
+    ks = list(range(len(test_i)))
     correct = 0.0
     with codecs.open(fn, 'w', 'utf-8') as outf:
         for j,k in enumerate(ks):
@@ -1151,34 +1089,10 @@ def test_beam(inf_model, beam_size=4, fn=None):
 
 
 
-def test_beam_with_ranker(inf_model, rank_model, beam_size=4, fn=None):
-    ks = range(len(test_i))
-    correct = 0.0
-    with codecs.open(fn, 'w', 'utf-8') as outf:
-        for j,k in enumerate(ks):
-            out = inf_model.generate_nbest(test_i[k], test_t[k], beam_size)
-            if len(out):
-                best_loss = -1000000
-                best_output = ""
-                for output in out:
-                    dy.renew_cg()
-                    word = [c for c in output[2] if c != EOS]
-                    ranker_loss = rank_model.get_loss(word, test_t[k]).value()
-                    if output[0]*ranker_loss > best_loss:
-                            best_loss = output[0]*ranker_loss
-                            best_output = ''.join(word)
-            else:
-                print("CRAP", k)
-            if not best_output:
-                print("No best output")
-                best_output = ''.join([c for c in test_i[k] if c != EOS])
-            outf.write(''.join(test_i[k]) + '\t' + best_output + '\t' + ';'.join(test_t[k]) + '\n')
-    return 
-
 
 def draw_decode(inf_model, K=20):
     for k in range(K):
-        filename = FIGURE_DIR + str(k)
+        filename = os.path.join(FIGURE_DIR, str(k))
         inf_model.draw_decode(dev_i[k], dev_t[k], dev_o[k], show_att=True, show_tag_att=True, fn=filename)
     return
 
@@ -1186,11 +1100,9 @@ def draw_decode(inf_model, K=20):
 def eval_dev_beam(inf_model, beam_size=4, K=100, epoch=0):
     if K == "all":
         K = len(dev_i)
-    ks = range(len(dev_i))
+    ks = list(range(len(dev_i)))
     shuffle(ks)
     ks = ks[:K]
-    #K = len(dev_i)
-    #ks = range(K)
     outs = []
     levs = []
     correct = 0.0
@@ -1213,56 +1125,13 @@ def eval_dev_beam(inf_model, beam_size=4, K=100, epoch=0):
     avg_edit = np.average(np.array(levs))
     return accuracy, avg_edit
 
-def eval_dev_beam_with_ranker(inf_model, rank_model, beam_size=4, K=100):
-    if K == "all":
-        K = len(dev_i)
-    ks = range(len(dev_i))
-    shuffle(ks)
-    ks = ks[:K]
-    #K = len(dev_i)
-    #ks = range(K)
-    outs = []
-    levs = []
-    correct = 0.0
-    for j,k in enumerate(ks):
-        out = inf_model.generate_nbest(dev_i[k], dev_t[k], beam_size)
-        if len(out):
-            best_loss = -1000000
-            best_output = ""
-            do_print = False
-            for output in out:
-                dy.renew_cg()
-                word = [c for c in output[2] if c != EOS]
-                ranker_loss = rank_model.get_loss(word, dev_t[k]).value()
-                if do_print:
-                    print('\t', ''.join(word), output[0], ranker_loss, output[0]*ranker_loss)
-                if output[0]*ranker_loss > best_loss:
-                        best_loss = output[0]*ranker_loss
-                        best_output = ''.join(word)
-        else:
-            print("CRAP")
-        if not best_output:
-            print("No best output")
-            best_output = ''.join([c for c in dev_i[k] if c != EOS])
-        outs.append(best_output)
-        lev = myutil.edit_distance(best_output, dev_o[k])
-        levs.append(lev)
-        if list(best_output) == dev_o[k]:
-            correct += 1
-
-    accuracy = correct/float(K)
-    avg_edit = np.average(np.array(levs))
-    return accuracy, avg_edit
-
 
 def eval_dev_greedy(inf_model, K=100, epoch=0):
     if K == "all":
         K = len(dev_i)
-    ks = range(len(dev_i))
+    ks = list(range(len(dev_i)))
     shuffle(ks)
     ks = ks[:K]
-    #K = len(dev_i)
-    #ks = range(K)
     outs = []
     levs = []
     correct = 0.0
@@ -1281,7 +1150,7 @@ def eval_dev_greedy(inf_model, K=100, epoch=0):
 def eval_dev_copy_greedy(inf_model, K=40, epoch=0):
     if K == "all":
         K = len(dev_i)
-    ks = range(len(dev_i))
+    ks = list(range(len(dev_i)))
     shuffle(ks)
     ks = ks[:K]
     outs = []
@@ -1301,9 +1170,8 @@ def eval_dev_copy_greedy(inf_model, K=40, epoch=0):
 
 
 
-
 def train_simple_attention_with_tags(inf_model, inputs, tags, outputs, lang_ids=None, finetune=False, trainer=None, prev_acc=None, prev_edd=None):
-    indexes = range(len(inputs))
+    indexes = list(range(len(inputs)))
     tasks = [0,1,2]
     burnin_pairs = [(j,t) for j in indexes for t in tasks[:2]]
     total_burnin_pairs = len(burnin_pairs)
@@ -1355,14 +1223,14 @@ def train_simple_attention_with_tags(inf_model, inputs, tags, outputs, lang_ids=
                 acc, edd = eval_dev_copy_greedy(inf_model, 'all', i)
                 print("\t COPY Accuracy: "+ str(acc) + " average edit distance: " + str(edd))
             if edd < prev_edd:
-                inf_model.model.save(MODEL_DIR+MODEL_NAME+"edd.model")
+                inf_model.model.save(os.path.join(MODEL_DIR, MODEL_NAME+"edd.model"))
             if (acc > prev_acc and edd < prev_edd) or (acc >= prev_acc and edd < prev_edd) or (acc > prev_acc and edd <= prev_edd):
-                inf_model.model.save(MODEL_DIR+MODEL_NAME+"both.model")
+                inf_model.model.save(os.path.join(MODEL_DIR, MODEL_NAME+"both.model"))
                 epochs_since_improv = 0
             else:
                 epochs_since_improv += 1
             if acc > prev_acc:
-                inf_model.model.save(MODEL_DIR+MODEL_NAME+"acc.model")
+                inf_model.model.save(os.path.join(MODEL_DIR, MODEL_NAME+"acc.model"))
                 epochs_since_improv = 0
             if acc > prev_acc:
                 prev_acc = acc
@@ -1376,7 +1244,7 @@ def train_simple_attention_with_tags(inf_model, inputs, tags, outputs, lang_ids=
                     break
                 trainer.restart(learning_rate)
                 epochs_since_improv = 0
-                inf_model.model.populate(MODEL_DIR+MODEL_NAME+"acc.model")
+                inf_model.model.populate(os.path.join(MODEL_DIR, MODEL_NAME+"acc.model"))
             if acc > COPY_THRESHOLD:
                 print("Accuracy good enough, breaking")
                 break
@@ -1424,17 +1292,17 @@ def train_simple_attention_with_tags(inf_model, inputs, tags, outputs, lang_ids=
                 acc, edd = eval_dev_greedy(inf_model, 100, 100+i)
                 print("\t TASK Accuracy: ", acc, " average edit distance: ", edd)
             if acc > prev_acc:
-                inf_model.model.save(MODEL_DIR+MODEL_NAME+"acc.model")
+                inf_model.model.save(os.path.join(MODEL_DIR, MODEL_NAME+"acc.model"))
                 epochs_since_improv = 0
             if edd < prev_edd:
-                inf_model.model.save(MODEL_DIR+MODEL_NAME+"edd.model")
+                inf_model.model.save(os.path.join(MODEL_DIR, MODEL_NAME+"edd.model"))
             if (acc > prev_acc and edd < prev_edd) or (acc >= prev_acc and edd < prev_edd) or (acc > prev_acc and edd <= prev_edd):
-                inf_model.model.save(MODEL_DIR+MODEL_NAME+"both.model")
+                inf_model.model.save(os.path.join(MODEL_DIR, MODEL_NAME+"both.model"))
                 epochs_since_improv = 0
             else:
                 epochs_since_improv += 1
             if acc > prev_acc:
-                inf_model.model.save(MODEL_DIR+MODEL_NAME+"acc.model")
+                inf_model.model.save(os.path.join(MODEL_DIR, MODEL_NAME+"acc.model"))
                 epochs_since_improv = 0
             if acc > prev_acc:
                 prev_acc = acc
@@ -1448,7 +1316,7 @@ def train_simple_attention_with_tags(inf_model, inputs, tags, outputs, lang_ids=
                 learning_rate = learning_rate/2
                 trainer.restart(learning_rate)
                 epochs_since_improv = 0
-                inf_model.model.populate(MODEL_DIR+MODEL_NAME+"acc.model")
+                inf_model.model.populate(os.path.join(MODEL_DIR, MODEL_NAME+"acc.model"))
             if acc > 0.9 and epochs_since_improv == 4:
                 print("Accuracy good enough, breaking")
                 break
@@ -1492,11 +1360,11 @@ def train_simple_attention_with_tags(inf_model, inputs, tags, outputs, lang_ids=
                 acc, edd = eval_dev_greedy(inf_model, "all", 140+i)
                 print("\t TASK Accuracy: ", acc, " average edit distance: ", edd)
             if acc > prev_acc:
-                inf_model.model.save(MODEL_DIR+MODEL_NAME+"acc.model")
+                inf_model.model.save(os.path.join(MODEL_DIR, MODEL_NAME+"acc.model"))
             if edd < prev_edd:
-                inf_model.model.save(MODEL_DIR+MODEL_NAME+"edd.model")
+                inf_model.model.save(os.path.join(MODEL_DIR, MODEL_NAME+"edd.model"))
             if (acc > prev_acc and edd < prev_edd) or (acc >= prev_acc and edd < prev_edd) or (acc > prev_acc and edd <= prev_edd):
-                inf_model.model.save(MODEL_DIR+MODEL_NAME+"both.model")
+                inf_model.model.save(os.path.join(MODEL_DIR, MODEL_NAME+"both.model"))
                 epochs_since_improv = 0
             else:
                 epochs_since_improv += 1
@@ -1513,7 +1381,7 @@ def train_simple_attention_with_tags(inf_model, inputs, tags, outputs, lang_ids=
                 learning_rate = learning_rate/2
                 trainer.restart(learning_rate)
                 epochs_since_improv = 0
-                inf_model.model.populate(MODEL_DIR+MODEL_NAME+"acc.model")
+                inf_model.model.populate(os.path.join(MODEL_DIR, MODEL_NAME+"acc.model"))
 
         halvings = 0
         for i in range(40):
@@ -1539,11 +1407,11 @@ def train_simple_attention_with_tags(inf_model, inputs, tags, outputs, lang_ids=
                 acc, edd = eval_dev_greedy(inf_model, "all", 160+i)
                 print("\t TASK Accuracy: ", acc, " average edit distance: ", edd)
             if acc > prev_acc:
-                inf_model.model.save(MODEL_DIR+MODEL_NAME+"acc.model")
+                inf_model.model.save(os.path.join(MODEL_DIR, MODEL_NAME+"acc.model"))
             if edd < prev_edd:
-                inf_model.model.save(MODEL_DIR+MODEL_NAME+"edd.model")
+                inf_model.model.save(os.path.join(MODEL_DIR, MODEL_NAME+"edd.model"))
             if (acc > prev_acc and edd < prev_edd) or (acc >= prev_acc and edd < prev_edd) or (acc > prev_acc and edd <= prev_edd):
-                inf_model.model.save(MODEL_DIR+MODEL_NAME+"both.model")
+                inf_model.model.save(os.path.join(MODEL_DIR, MODEL_NAME+"both.model"))
                 epochs_since_improv = 0
             else:
                 epochs_since_improv += 1
@@ -1560,46 +1428,9 @@ def train_simple_attention_with_tags(inf_model, inputs, tags, outputs, lang_ids=
                 learning_rate = learning_rate/2
                 trainer.restart(learning_rate)
                 epochs_since_improv = 0
-                inf_model.model.populate(MODEL_DIR+MODEL_NAME+"acc.model")
+                inf_model.model.populate(os.path.join(MODEL_DIR, MODEL_NAME+"acc.model"))
 
     return trainer, prev_acc, prev_edd
-
-
-def train_ranker(rank_model, inputs, tags):
-    indexes = range(len(inputs))
-    shuffle(indexes)
-    learning_rate = 0.01
-    trainer = dy.SimpleSGDTrainer(rank_model.model, learning_rate)
-    #trainer.set_clip_threshold(-1.0)
-    #trainer.set_sparse_updates(True if args.SPARSE == 1 else False)
-    N = len(indexes)
-    dev_N = N/10
-    train_N = N - dev_N
-    train_indexes = indexes
-    dev_indexes = indexes[:dev_N]
-    prev_loss = 1000000000
-
-    for i in range(80):
-        shuffle(train_indexes)
-        total_loss = 0.0
-        batch = []
-        dy.renew_cg()
-        for k,j in enumerate(train_indexes):
-            loss = rank_model.get_loss(inputs[j], tags[j])
-            batch.append(loss)
-            if len(batch) == MINIBATCH_SIZE or k == train_N:
-                loss = dy.esum(batch)/len(batch)
-                total_loss += loss.value()
-                loss.backward()
-                trainer.update()
-                batch = []
-                dy.renew_cg()
-        if i % 1 == 0:
-            print("Epoch ", i, " : ", total_loss)
-            trainer.status()
-        if prev_loss > total_loss:
-            rank_model.model.save(MODEL_DIR+"ranker.model")
-            prev_loss = total_loss
 
 
 # equivalent of main
@@ -1644,7 +1475,7 @@ if TRAIN:
 
 elif TEST_DEV:
     inflection_model = InflectionModel()
-    inflection_model.model.populate(MODEL_DIR+MODEL_NAME+"acc.model")
+    inflection_model.model.populate(os.path.join(MODEL_DIR, MODEL_NAME+"acc.model"))
     #acc, edd = eval_dev_greedy(enc_fwd_lstm, enc_bwd_lstm, dec_lstm, "all", "test")
     acc, edd = eval_dev_beam(inflection_model, 8, "all", "test") # it was 8 beams
     print("Best dev accuracy at test: ", acc)
@@ -1652,15 +1483,15 @@ elif TEST_DEV:
 
 elif DRAW_DEV:
     inflection_model = InflectionModel()
-    inflection_model.model.populate(MODEL_DIR+MODEL_NAME+"acc.model")
+    inflection_model.model.populate(os.path.join(MODEL_DIR, MODEL_NAME+"acc.model"))
     draw_decode(inflection_model)
 
 
 elif TEST_DEV_ENSEMBLE:
     inflection_model1 = InflectionModel()
-    inflection_model1.model.populate(MODEL_DIR+MODEL_NAME+"acc.model")
+    inflection_model1.model.populate(os.path.join(MODEL_DIR, MODEL_NAME+"acc.model"))
     inflection_model2 = InflectionModel()
-    inflection_model2.model.populate(MODEL_DIR+MODEL_NAME+"edd.model")
+    inflection_model2.model.populate(os.path.join(MODEL_DIR, MODEL_NAME+"edd.model"))
     acc, edd = eval_dev_beam_ensemble([inflection_model1, inflection_model2], [0.5, 0.5], 8, "all", "test")
     print("Best dev accuracy at test: ", acc)
     print("Best dev lev distance at test: ", edd)
@@ -1669,51 +1500,50 @@ elif TEST_DEV_ENSEMBLE:
 
 elif TEST:
     inflection_model = InflectionModel()
-    inflection_model.model.populate(MODEL_DIR+MODEL_NAME+"acc.model")
-    test_beam(inflection_model, 8, OUTPUT_DIR+MODEL_NAME+"test.output") # it was 8 beams
+    inflection_model.model.populate(os.path.join(MODEL_DIR, MODEL_NAME+"acc.model"))
+    test_beam(inflection_model, 8, os.path.join(OUTPUT_DIR,MODEL_NAME+"test.output"))
 
 
 elif TEST_ENSEMBLE:
     inflection_model1 = InflectionModel()
-    inflection_model1.model.populate(MODEL_DIR+MODEL_NAME+"acc.model")
+    inflection_model1.model.populate(os.path.join(MODEL_DIR, MODEL_NAME+"acc.model"))
     inflection_model2 = InflectionModel()
-    inflection_model2.model.populate(MODEL_DIR+MODEL_NAME+"edd.model")
+    inflection_model2.model.populate(os.path.join(MODEL_DIR, MODEL_NAME+"edd.model"))
     inflection_model3 = InflectionModel()
-    inflection_model3.model.populate(MODEL_DIR+MODEL_NAME+"both.model")
-    test_beam_ensemble([inflection_model1, inflection_model2, inflection_model3], [0.34, 0.33, 0.33], 8, OUTPUT_DIR+MODEL_NAME+"test.ensemble.output")
+    inflection_model3.model.populate(os.path.join(MODEL_DIR, MODEL_NAME+"both.model"))
+    test_beam_ensemble([inflection_model1, inflection_model2, inflection_model3], [0.34, 0.33, 0.33], 8, os.path.join(OUTPUT_DIR,MODEL_NAME+"test.ensemble.output"))
 
 
 elif TEST_TWO_ENSEMBLE:
     mixing_weights = compute_mixing_weights(2)
     inflection_model1 = InflectionModel()
-    inflection_model1.model.populate(MODEL_DIR+"orig.acc.model")
+    inflection_model1.model.populate(os.path.join(MODEL_DIR,"orig.acc.model"))
     inflection_model2 = InflectionModel()
-    inflection_model2.model.populate(MODEL_DIR+"swap.acc.model")
-    test_beam_ensemble([inflection_model1, inflection_model2], mixing_weights, 8, OUTPUT_DIR+"test.two_ensemble.output")
+    inflection_model2.model.populate(os.path.join(MODEL_DIR, "swap.acc.model"))
+    test_beam_ensemble([inflection_model1, inflection_model2], mixing_weights, 8, os.path.join(OUTPUT_DIR,"test.two_ensemble.output"))
     
-
     
 
 elif TEST_THREE_ENSEMBLE:
     mixing_weights = compute_mixing_weights(3)
     inflection_model1 = InflectionModel()
-    inflection_model1.model.populate(MODEL_DIR+"orig.acc.model")
+    inflection_model1.model.populate(os.path.join(MODEL_DIR,"orig.acc.model"))
     inflection_model2 = InflectionModel()
-    inflection_model2.model.populate(MODEL_DIR+"swap.acc.model")
+    inflection_model2.model.populate(os.path.join(MODEL_DIR,"swap.acc.model"))
     inflection_model3 = InflectionModel()
-    inflection_model3.model.populate(MODEL_DIR+"low.both.model")
-    test_beam_ensemble([inflection_model1, inflection_model2, inflection_model3], mixing_weights, 8, OUTPUT_DIR+"test.three_ensemble.output")
+    inflection_model3.model.populate(os.path.join(MODEL_DIR,"low.both.model"))
+    test_beam_ensemble([inflection_model1, inflection_model2, inflection_model3], mixing_weights, 8, os.path.join(OUTPUT_DIR,"test.three_ensemble.output"))
     
 
 elif TEST_ALL_ENSEMBLE:
     mixing_weights = compute_mixing_weights(2)
     inflection_model1 = InflectionModel()
-    inflection_model1.model.populate(MODEL_DIR+"orig.acc.model")
+    inflection_model1.model.populate(os.path.join(MODEL_DIR,"orig.acc.model"))
     inflection_model2 = InflectionModel()
-    inflection_model2.model.populate(MODEL_DIR+"swap.acc.model")
+    inflection_model2.model.populate(os.path.join(MODEL_DIR,"swap.acc.model"))
     inflection_model3 = InflectionModel()
-    inflection_model3.model.populate(MODEL_DIR+"orig.edd.model")
+    inflection_model3.model.populateos.path.join((MODEL_DIR,"orig.edd.model"))
     inflection_model4 = InflectionModel()
-    inflection_model4.model.populate(MODEL_DIR+"swap.edd.model")
-    test_beam_ensemble([inflection_model1, inflection_model2, inflection_model3, inflection_model4], mixing_weights+mixing_weights, 8, OUTPUT_DIR+"test.all_ensemble.output")
+    inflection_model4.model.populate(os.path.join(MODEL_DIR,"swap.edd.model"))
+    test_beam_ensemble([inflection_model1, inflection_model2, inflection_model3, inflection_model4], mixing_weights+mixing_weights, 8, os.path.join(OUTPUT_DIR,"test.all_ensemble.output"))
     
