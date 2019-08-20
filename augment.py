@@ -1,11 +1,10 @@
 
 import align
-from random import random, choice
-import os
-import sys
-import codecs
-import re
 import argparse
+import codecs
+import os, sys
+from random import random, choice
+import re
 
 
 def read_data(filename):
