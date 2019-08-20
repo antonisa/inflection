@@ -1,9 +1,11 @@
 
 import align
 from random import random, choice
+import os
 import sys
 import codecs
 import re
+import argparse
 
 
 def read_data(filename):
@@ -93,11 +95,21 @@ def get_chars(l):
     flat_list = [char for word in l for char in word]
     return list(set(flat_list))
 
-L2 = sys.argv[2]
-DATA_PATH = "../2019/task1/"+L1+"--"+L2+"/"
-LOW_PATH = DATA_PATH + L2+ "-train-low"
-DEV_PATH = DATA_PATH + L2+ "-dev"
 
+parser = argparse.ArgumentParser()
+parser.add_argument("datapath", help="path to data", type=str)
+parser.add_argument("language", help="language", type=str)
+parser.add_argument("--examples", help="number of hallucinated examples to create (def: 10000)", default=10000, type=int)
+parser.add_argument("--use_dev", help="whether to use the development set (def: False)", action="store_true")
+args = parser.parse_args()
+
+DATA_PATH = args.datapath
+L2 = args.language
+LOW_PATH = os.path.join(DATA_PATH, L2+"-train")
+DEV_PATH = os.path.join(DATA_PATH, L2+"-dev")
+
+N = args.examples
+usedev = args.use_dev
 
 lowi, lowo, lowt = read_data(LOW_PATH)
 devi, devo, devt = read_data(DEV_PATH)
@@ -105,11 +117,13 @@ devi, devo, devt = read_data(DEV_PATH)
 vocab = get_chars(lowi+lowo+devi+devo)
 
 i,o,t = [], [], []
-while len(i) < 10000:
-	# Do augmentation also using examples from dev
-	#ii,oo,tt = augment(devi+lowi, devo+lowo, devt+lowt, vocab)
-	# Just augment the training set
-	ii,oo,tt = augment(lowi, lowo, lowt, vocab)
+while len(i) < N:
+	if usedev:
+		# Do augmentation also using examples from dev
+		ii,oo,tt = augment(devi+lowi, devo+lowo, devt+lowt, vocab)
+	else:
+		# Just augment the training set
+		ii,oo,tt = augment(lowi, lowo, lowt, vocab)
 	ii = [c for c in ii if c]
 	oo = [c for c in oo if c]
 	tt = [c for c in tt if c]
@@ -125,5 +139,5 @@ o = [c for c in o if c]
 t = [c for c in t if c]
 
 with codecs.open(DATA_PATH+L2+"-hall", 'w', 'utf-8') as outp:
-	for k in range(min(10000, len(i))):
+	for k in range(min(N, len(i))):
 		outp.write(''.join(i[k]) + '\t' + ''.join(o[k]) + '\t' + ';'.join(t[k]) + '\n')

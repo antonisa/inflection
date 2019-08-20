@@ -224,10 +224,10 @@ if SWAP:
         low_i, low_o, low_t = list(dev_i), list(dev_o), list(dev_t)
         dev_i, dev_o, dev_t = tmp1, tmp2, tmp3
 
-print len(high_i), len(high_o), len(high_t)
-print len(low_i), len(low_o), len(low_t)
-print len(dev_i), len(dev_o), len(dev_t)
-print len(test_i), len(test_t)
+print(len(high_i), len(high_o), len(high_t))
+print(len(low_i), len(low_o), len(low_t))
+print(len(dev_i), len(dev_o), len(dev_t))
+print(len(test_i), len(test_t))
 
 def compute_mixing_weights(l):
     if l == 3:
@@ -273,8 +273,6 @@ characters.append(EOS)
 if u' '  not in characters:
     characters.append(u' ')
 
-#print characters
-
 NULL = "<NULL>"
 tags = get_tags(high_t+low_t+dev_t+test_t)
 tags.append(NULL)
@@ -296,10 +294,10 @@ MINIBATCH_SIZE = 1
 COPY_WEIGHT = 0.8
 DROPOUT_PROB = 0.2
 
-print characters
-print VOCAB_SIZE
-print tags
-print TAG_VOCAB_SIZE
+print(characters)
+print(VOCAB_SIZE)
+print(tags)
+print(TAG_VOCAB_SIZE)
 
 
 def run_lstm(init_state, input_vecs):
@@ -441,10 +439,8 @@ class InflectionModel:
 
         if USE_ATT_REG:
             total_att = dy.zeros(N)
-            #print "total_att dim ", total_att.dim()
         if USE_TAG_ATT_REG:
             total_tag_att = dy.zeros(len(tag_vectors))
-            #print "total_tag_att dim ", total_tag_att.dim()
 
         for char in output:
             # w1dt can be computed and cached once for the entire decoding phase
@@ -474,7 +470,7 @@ class InflectionModel:
             else:
                 prev_att = att_weights[startt:endd]
             if prev_att.dim()[0][0] != 5:
-                print prev_att.dim()
+                print(prev_att.dim())
 
             if USE_ATT_REG:
                 total_att = total_att + att_weights
@@ -573,10 +569,6 @@ class InflectionModel:
                 prev_att = dy.concatenate([att_weights] + [dy.zeros(1)]*(5-N) )
             else:
                 prev_att = att_weights[startt:endd]
-            #if prev_att.dim()[0][0] != 5:
-            #    print prev_att.dim()
-
-            #print startt, endd, prev_att.dim()
 
 
             if show_att:
@@ -589,11 +581,6 @@ class InflectionModel:
             out_vector = self.decoder_w * s.output() + self.decoder_b
             probs = dy.softmax(out_vector).npvalue()
 
-            #print probs
-            #if USE_EXTRA:
-            #    extra = myutil.score2(";".join(tag_seq), [char2int[tmpinseq[best_ic]]], counts, change, len(characters))
-            #    probs = (1-EXTRA_WEIGHT)* probs + EXTRA_WEIGHT*extra
-            
             next_char = np.argmax(probs)
             last_output_embeddings = self.output_lookup[next_char]
             if int2char[next_char] == EOS:
@@ -682,7 +669,7 @@ class InflectionModel:
             else:
                 prev_att = att_weights[startt:endd]
             if prev_att.dim()[0][0] != 5:
-                print prev_att.dim()
+                print(prev_att.dim())
 
             if show_att:
                 attt_weights.append(att_weights.npvalue())
@@ -806,29 +793,17 @@ class InflectionModel:
                 else:
                     prev_att = att_weights[startt:endd]
                 if prev_att.dim()[0][0] != 5:
-                    print prev_att.dim()
-                #print "attending over ", best_ic, tmpinseq[best_ic]
-                #if show_att:
-                #    attt_weights.append(att_weights.npvalue())
+                    print(prev_att.dim())
                 context = input_mat * att_weights
 
                 vector = dy.concatenate([context, tag_context, last_output_embeddings])
                 s_0 = s.add_input(vector)
                 out_vector = self.decoder_w * s_0.output() + self.decoder_b
-                #if USE_ALLOWED:
-                #    out_vector = dy.cmult(dy.inputVector(allowed[last_hypo_symbol]),out_vector)
                 probs = dy.softmax(out_vector).npvalue()
-                #probs = probs * allowed[last_hypo_symbol]
-                #if USE_EXTRA:
-                #    extra = myutil.score2(";".join(tag_seq), [char2int[tmpinseq[best_ic]]], counts, change, len(characters))
-                #    probs = (1-EXTRA_WEIGHT)* probs + EXTRA_WEIGHT*extra
-
 
                 # Add length norm
                 length_norm = np.power(5 + i, LENGTH_NORM_WEIGHT)/(np.power(6,LENGTH_NORM_WEIGHT))
                 probs = probs/length_norm
-
-                #probs = allowed[last_hypo_symbol] + np.log(probs)
 
 
                 last_states[hyp_id] = s_0.s()
@@ -985,24 +960,14 @@ def ensemble_generate_nbest(inf_models, ensemble_weights, in_seq, tag_seq, beam_
                 else:
                     prev_att2[k] = att_weights[k][startt:endd]
                 if prev_att2[k].dim()[0][0] != 5:
-                    print prev_att2[k].dim()
-                #print "attending over ", best_ic, tmpinseq[best_ic]
-                #if show_att:
-                #    attt_weights.append(att_weights.npvalue())
+                    print(prev_att2[k].dim())
                 context[k] = input_mat[k] * att_weights[k]
 
                 vector[k] = dy.concatenate([context[k], tag_context[k], last_output_embeddings[k]])
                 s_0[k] = s[k].add_input(vector[k])
                 out_vector[k] = inf_models[k].decoder_w * s_0[k].output() + inf_models[k].decoder_b
-                #if USE_ALLOWED:
-                #    out_vector[k] = dy.cmult(dy.inputVector(allowed[last_hypo_symbol]),out_vector[k])
                 
                 probs[k] = dy.softmax(out_vector[k]).npvalue()
-                #probs = probs * allowed[last_hypo_symbol]
-                #if USE_EXTRA:
-                #    extra = myutil.score2(";".join(tag_seq), [char2int[tmpinseq[best_ic]]], counts, change, len(characters))
-                #    probs[k] = (1-EXTRA_WEIGHT)* probs[k] + EXTRA_WEIGHT*extra
-
 
                 # Add length norm
                 length_norm = np.power(5 + i, LENGTH_NORM_WEIGHT)/(np.power(6,LENGTH_NORM_WEIGHT))
@@ -1014,10 +979,8 @@ def ensemble_generate_nbest(inf_models, ensemble_weights, in_seq, tag_seq, beam_
 
             # Combine the ensemble probabilities
             ensemble_probs = probs[0]
-            #print "ensemble_probs", np.sum(ensemble_probs)
             for k in range(1,n_models):
                 ensemble_probs += probs[k]
-                #print "ensemble_probs", np.sum(ensemble_probs)
             # find best candidate outputs
             n_best_indices = myutil.argmax(ensemble_probs, beam_size)
             for index in n_best_indices:
@@ -1062,7 +1025,7 @@ def test_beam_ensemble(inf_models, weights, beam_size=4, fn=None):
             elif out:
                 word = ''.join([c for c in out[0][2] if c != EOS])
             else:
-                print "no out"
+                print("no out")
                 word = ''.join(test_i[k])
             outf.write(''.join(test_i[k]) + '\t' + word + '\t' + ';'.join(test_t[k]) + '\n')
 
@@ -1085,9 +1048,9 @@ def test_beam_ensemble_with_ranker(inf_models, weights, rank_model, beam_size=8,
                             best_loss = output[0]*ranker_loss
                             best_output = ''.join(word)
             else:
-                print "CRAP", k
+                print("CRAP", k)
             if not best_output:
-                print "No best output"
+                print("No best output")
                 best_output = ''.join([c for c in test_i[k] if c != EOS])
 
             outf.write(''.join(test_i[k]) + '\t' + best_output + '\t' + ';'.join(test_t[k]) + '\n')
@@ -1115,7 +1078,7 @@ def eval_dev_beam_ensemble(inf_models, weights, beam_size=4, K=100, epoch=0):
         elif out:
             word = ''.join([c for c in out[0][2] if c != EOS])
         else:
-            print "no out"
+            print("no out")
             word = ''.join(dev_i[k])
         outs.append(word)
         lev = myutil.edit_distance(word, dev_o[k])
@@ -1152,9 +1115,9 @@ def eval_dev_beam_ensemble_with_ranker(inf_models, weights, rank_model, beam_siz
                         best_loss = output[0]*ranker_loss
                         best_output = ''.join(word)
         else:
-            print "CRAP", k
+            print("CRAP", k)
         if not best_output:
-            print "No best output"
+            print("No best output")
             best_output = ''.join([c for c in dev_i[k] if c != EOS])
 
         outs.append(best_output)
@@ -1205,9 +1168,9 @@ def test_beam_with_ranker(inf_model, rank_model, beam_size=4, fn=None):
                             best_loss = output[0]*ranker_loss
                             best_output = ''.join(word)
             else:
-                print "CRAP", k
+                print("CRAP", k)
             if not best_output:
-                print "No best output"
+                print("No best output")
                 best_output = ''.join([c for c in test_i[k] if c != EOS])
             outf.write(''.join(test_i[k]) + '\t' + best_output + '\t' + ';'.join(test_t[k]) + '\n')
     return 
@@ -1237,9 +1200,9 @@ def eval_dev_beam(inf_model, beam_size=4, K=100, epoch=0):
             word = ''.join([c for c in out[0][2] if c != EOS])
             out1 = ''.join(out[0][2][1:-1])
         elif out:
-			word = ''.join([c for c in out[0][2] if c != EOS])
+            word = ''.join([c for c in out[0][2] if c != EOS])
         else:
-			word = ''.join(dev_i[k])
+            word = ''.join(dev_i[k])
         outs.append(word)
         lev = myutil.edit_distance(word, dev_o[k])
         levs.append(lev)
@@ -1263,36 +1226,23 @@ def eval_dev_beam_with_ranker(inf_model, rank_model, beam_size=4, K=100):
     correct = 0.0
     for j,k in enumerate(ks):
         out = inf_model.generate_nbest(dev_i[k], dev_t[k], beam_size)
-        #print "Input: ", ''.join(dev_i[k])
-        #print "Correct output: ", ''.join(dev_o[k])
-        #print "Outputs:"
         if len(out):
             best_loss = -1000000
             best_output = ""
             do_print = False
-            #if out[0][2][1:-1] != dev_o[k]:
-            #    do_print=True
             for output in out:
                 dy.renew_cg()
                 word = [c for c in output[2] if c != EOS]
-                #print ''.join(word)
-                #if L2=="greek":
-                #important = [u'έ',u'ώ',u'ύ',u'ό',u'ί',u'ά',u'ή']
-                #counts = [word.count(c) for c in important]
-                #if sum(counts) != 1 and L2=="greek":
-                #    continue
                 ranker_loss = rank_model.get_loss(word, dev_t[k]).value()
                 if do_print:
-                    print '\t', ''.join(word), output[0], ranker_loss, output[0]*ranker_loss
+                    print('\t', ''.join(word), output[0], ranker_loss, output[0]*ranker_loss)
                 if output[0]*ranker_loss > best_loss:
                         best_loss = output[0]*ranker_loss
                         best_output = ''.join(word)
         else:
-            print "CRAP"
-            #print dev_i[k]
+            print("CRAP")
         if not best_output:
-            print "No best output"
-            #best_output = ''.join([c for c in out[0][2] if c != EOS])
+            print("No best output")
             best_output = ''.join([c for c in dev_i[k] if c != EOS])
         outs.append(best_output)
         lev = myutil.edit_distance(best_output, dev_o[k])
@@ -1374,7 +1324,7 @@ def train_simple_attention_with_tags(inf_model, inputs, tags, outputs, lang_ids=
     prev_acc = prev_acc or 0.0
     prev_edd = prev_edd or 100
     if lang_ids == None:
-		lang_ids = np.zeros(len(burnin_pairs))
+        lang_ids = np.zeros(len(burnin_pairs))
 
     if not finetune:
         # Learn to copy -- burn in
@@ -1401,7 +1351,7 @@ def train_simple_attention_with_tags(inf_model, inputs, tags, outputs, lang_ids=
                     dy.renew_cg()
             if i % 1 == 0:
                 trainer.status()
-                print ("Epoch "+str(i)+" : "+ str(total_loss))
+                print("Epoch "+str(i)+" : "+ str(total_loss))
                 acc, edd = eval_dev_copy_greedy(inf_model, 'all', i)
                 print("\t COPY Accuracy: "+ str(acc) + " average edit distance: " + str(edd))
             if edd < prev_edd:
@@ -1428,7 +1378,7 @@ def train_simple_attention_with_tags(inf_model, inputs, tags, outputs, lang_ids=
                 epochs_since_improv = 0
                 inf_model.model.populate(MODEL_DIR+MODEL_NAME+"acc.model")
             if acc > COPY_THRESHOLD:
-                print "Accuracy good enough, breaking"
+                print("Accuracy good enough, breaking")
                 break
 
         
@@ -1468,11 +1418,11 @@ def train_simple_attention_with_tags(inf_model, inputs, tags, outputs, lang_ids=
                     weight = 0.0
             if i % 1 == 0:
                 trainer.status()
-                print "Epoch ", i, " : ", total_loss
+                print("Epoch ", i, " : ", total_loss)
                 acc, edd = eval_dev_copy_greedy(inf_model, 20, 100+i)
-                print "\t COPY Accuracy: ", acc, " average edit distance: ", edd
+                print("\t COPY Accuracy: ", acc, " average edit distance: ", edd)
                 acc, edd = eval_dev_greedy(inf_model, 100, 100+i)
-                print "\t TASK Accuracy: ", acc, " average edit distance: ", edd
+                print("\t TASK Accuracy: ", acc, " average edit distance: ", edd)
             if acc > prev_acc:
                 inf_model.model.save(MODEL_DIR+MODEL_NAME+"acc.model")
                 epochs_since_improv = 0
@@ -1500,7 +1450,7 @@ def train_simple_attention_with_tags(inf_model, inputs, tags, outputs, lang_ids=
                 epochs_since_improv = 0
                 inf_model.model.populate(MODEL_DIR+MODEL_NAME+"acc.model")
             if acc > 0.9 and epochs_since_improv == 4:
-                print "Accuracy good enough, breaking"
+                print("Accuracy good enough, breaking")
                 break
 
                 
@@ -1535,12 +1485,12 @@ def train_simple_attention_with_tags(inf_model, inputs, tags, outputs, lang_ids=
                     dy.renew_cg()
                     weight = 0.0
             if i % 1 == 0:
-                print "Epoch ", i, " : ", total_loss
+                print("Epoch ", i, " : ", total_loss)
                 trainer.status()
                 acc, edd = eval_dev_copy_greedy(inf_model, 20, 140+i)
-                print "\t COPY Accuracy: ", acc, " average edit distance: ", edd
+                print("\t COPY Accuracy: ", acc, " average edit distance: ", edd)
                 acc, edd = eval_dev_greedy(inf_model, "all", 140+i)
-                print "\t TASK Accuracy: ", acc, " average edit distance: ", edd
+                print("\t TASK Accuracy: ", acc, " average edit distance: ", edd)
             if acc > prev_acc:
                 inf_model.model.save(MODEL_DIR+MODEL_NAME+"acc.model")
             if edd < prev_edd:
@@ -1582,12 +1532,12 @@ def train_simple_attention_with_tags(inf_model, inputs, tags, outputs, lang_ids=
                     batch = []
                     dy.renew_cg()
             if i % 1 == 0:
-                print "Epoch ", i, " : ", total_loss
+                print("Epoch ", i, " : ", total_loss)
                 trainer.status()
                 acc, edd = eval_dev_copy_greedy(inf_model, 20, 160+i)
-                print "\t COPY Accuracy: ", acc, " average edit distance: ", edd
+                print("\t COPY Accuracy: ", acc, " average edit distance: ", edd)
                 acc, edd = eval_dev_greedy(inf_model, "all", 160+i)
-                print "\t TASK Accuracy: ", acc, " average edit distance: ", edd
+                print("\t TASK Accuracy: ", acc, " average edit distance: ", edd)
             if acc > prev_acc:
                 inf_model.model.save(MODEL_DIR+MODEL_NAME+"acc.model")
             if edd < prev_edd:
@@ -1645,7 +1595,7 @@ def train_ranker(rank_model, inputs, tags):
                 batch = []
                 dy.renew_cg()
         if i % 1 == 0:
-            print "Epoch ", i, " : ", total_loss
+            print("Epoch ", i, " : ", total_loss)
             trainer.status()
         if prev_loss > total_loss:
             rank_model.model.save(MODEL_DIR+"ranker.model")
@@ -1659,37 +1609,37 @@ if TRAIN:
         if ORIGINAL or SWAP:
             #lids_1 = [0]*MULTIPLY*len(low_i) + [1]*len(high_i)
             trainer, best_acc, best_edd = train_simple_attention_with_tags(inflection_model, MULTIPLY*low_i+high_i, MULTIPLY*low_t+high_t, MULTIPLY*low_o+high_o, lids_1)
-            print "Best dev accuracy after pre-training: ", best_acc
-            print "Best dev lev distance after pre-training: ", best_edd
+            print("Best dev accuracy after pre-training: ", best_acc)
+            print("Best dev lev distance after pre-training: ", best_edd)
             lids_2 = [0]*len(low_i)
             trainer2, best_acc, best_edd = train_simple_attention_with_tags(inflection_model, low_i, low_t, low_o, lids_2, True, trainer, best_acc, best_edd)
-            print "Best dev accuracy after finetuning: ", best_acc
-            print "Best dev lev distance after finetuning: ", best_edd
+            print("Best dev accuracy after finetuning: ", best_acc)
+            print("Best dev lev distance after finetuning: ", best_edd)
         elif LOW:
             lids_1 = [0]*len(low_i)
             trainer, best_acc, best_edd = train_simple_attention_with_tags(inflection_model, low_i, low_t, low_o, lids_1)
-            print "Best dev accuracy after pre-training: ", best_acc
-            print "Best dev lev distance after pre-training: ", best_edd
+            print("Best dev accuracy after pre-training: ", best_acc)
+            print("Best dev lev distance after pre-training: ", best_edd)
             lids_2 = [0]*len(low_i)
             trainer2, best_acc, best_edd = train_simple_attention_with_tags(inflection_model, low_i, low_t, low_o, lids_2, True, trainer, best_acc, best_edd)
-            print "Best dev accuracy after finetuning: ", best_acc
-            print "Best dev lev distance after finetuning: ", best_edd
+            print("Best dev accuracy after finetuning: ", best_acc)
+            print("Best dev lev distance after finetuning: ", best_edd)
 
     else:
         if ORIGINAL or SWAP:
             trainer, best_acc, best_edd = train_simple_attention_with_tags(inflection_model, MULTIPLY*low_i+high_i, MULTIPLY*low_t+high_t, MULTIPLY*low_o+high_o)
-            print "Best dev accuracy after pre-training: ", best_acc
-            print "Best dev lev distance after pre-training: ", best_edd
+            print("Best dev accuracy after pre-training: ", best_acc)
+            print("Best dev lev distance after pre-training: ", best_edd)
             trainer2, best_acc, best_edd = train_simple_attention_with_tags(inflection_model, low_i, low_t, low_o, None, True, trainer, best_acc, best_edd)
-            print "Best dev accuracy after finetuning: ", best_acc
-            print "Best dev lev distance after finetuning: ", best_edd
+            print("Best dev accuracy after finetuning: ", best_acc)
+            print("Best dev lev distance after finetuning: ", best_edd)
         elif LOW:
             trainer, best_acc, best_edd = train_simple_attention_with_tags(inflection_model, low_i, low_t, low_o)
-            print "Best dev accuracy after pre-training: ", best_acc
-            print "Best dev lev distance after pre-training: ", best_edd
+            print("Best dev accuracy after pre-training: ", best_acc)
+            print("Best dev lev distance after pre-training: ", best_edd)
             trainer2, best_acc, best_edd = train_simple_attention_with_tags(inflection_model, low_i, low_t, low_o, None, True, trainer, best_acc, best_edd)
-            print "Best dev accuracy after finetuning: ", best_acc
-            print "Best dev lev distance after finetuning: ", best_edd
+            print("Best dev accuracy after finetuning: ", best_acc)
+            print("Best dev lev distance after finetuning: ", best_edd)
 
 
 elif TEST_DEV:
@@ -1697,8 +1647,8 @@ elif TEST_DEV:
     inflection_model.model.populate(MODEL_DIR+MODEL_NAME+"acc.model")
     #acc, edd = eval_dev_greedy(enc_fwd_lstm, enc_bwd_lstm, dec_lstm, "all", "test")
     acc, edd = eval_dev_beam(inflection_model, 8, "all", "test") # it was 8 beams
-    print "Best dev accuracy at test: ", acc
-    print "Best dev lev distance at test: ", edd
+    print("Best dev accuracy at test: ", acc)
+    print("Best dev lev distance at test: ", edd)
 
 elif DRAW_DEV:
     inflection_model = InflectionModel()
@@ -1712,8 +1662,8 @@ elif TEST_DEV_ENSEMBLE:
     inflection_model2 = InflectionModel()
     inflection_model2.model.populate(MODEL_DIR+MODEL_NAME+"edd.model")
     acc, edd = eval_dev_beam_ensemble([inflection_model1, inflection_model2], [0.5, 0.5], 8, "all", "test")
-    print "Best dev accuracy at test: ", acc
-    print "Best dev lev distance at test: ", edd
+    print("Best dev accuracy at test: ", acc)
+    print("Best dev lev distance at test: ", edd)
 
 
 
