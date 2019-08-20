@@ -29,6 +29,7 @@ algamar	algamareis	V;2;PL;SBJV;PST;IPFV;LGSPEC1
 All scripts assume that files named `language-train`, `language-dev`, and `language-test` are under `data_directory`.
 The output is a file `language-hall` under `data_directory` with `N` hallucinated examples.
 
+If you want to also use the dev dataset for hallucination (recommended for extremely low-resource cases) add the `--use_dev` flag.
 
 ### Attribution
 The `align.py`, `align.c` and `Makefile` are taken from Roee Aharoni's work: https://github.com/roeeaharoni/morphological-reinflection/tree/master/src
@@ -117,7 +118,8 @@ bibtex:
     booktitle = {Proc. EMNLP},
     address = {Hong Kong},
     month = {November},
-    year = {2019}
+    year = {2019},
+    note = {to appear}
 }
 ~~~
 
