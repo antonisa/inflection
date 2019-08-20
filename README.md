@@ -16,7 +16,7 @@ Use the `augment.py` script as follows:
 python augment.py [data_directory] [language] --examples N [--use_dev]
 ~~~
 
-The script assumes data in the format of the [https://sigmorphon.github.io/sharedtasks/2019/task1/](SIGMORPHON 2019 task 1 inflection shared task) (e.g. from Asturian):
+The script assumes data in the format of the [SIGMORPHON 2019 task 1 inflection shared task](https://sigmorphon.github.io/sharedtasks/2019/task1/) (example from Asturian):
 ~~~
 meyorar	meyoraría	V;1;SG;COND
 firir	firir	V;NFIN
@@ -24,7 +24,7 @@ algamar	algamareis	V;2;PL;SBJV;PST;IPFV;LGSPEC1
 ...
 ~~~
 but assumes that files named `language-train`, `language-dev`, and `language-test` are under `data_directory`.
-
+The output is a file `language-hall` under `data_directory` with `N` hallucinated examples.
 
 # Attribution
 
