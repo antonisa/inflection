@@ -15,12 +15,12 @@ from random import random,shuffle
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--datapath", help="path to data", type=str)
-parser.add_argument("--L1", help="transfer languages (split with comma for multiple ones)", type=str)
-parser.add_argument("--L2", help="test languages", type=str)
+parser.add_argument("--datapath", help="path to data", type=str, required=True)
+parser.add_argument("--L1", help="transfer languages (split with comma for multiple ones)", type=str, required=False)
+parser.add_argument("--L2", help="test languages", type=str, required=True)
 parser.add_argument("--mode", help="usage mode", type=str,
     choices=['train','test','test-dev','draw-dev','test-dev-ensemble','test-ensemble','test-two-ensemble','test-three-ensemble',
-    'test-all-ensemble'], default='')
+    'test-all-ensemble'], default='', required=True)
 parser.add_argument("--setting", help="data setting", type=str, choices=['original','swap','low',], default='original')
 parser.add_argument("--modelpath", help="path to store the models", type=str, default='./models')
 parser.add_argument("--figurepath", help="path to store the output attention figures", type=str, default='./figures')
@@ -30,10 +30,16 @@ parser.add_argument("--only_hall", help="only use the hallucinated dataset to tr
 parser.add_argument("--predict_lang", help="use the language discriminator auxiliary task (def: False)", action="store_true")
 parser.add_argument("--use_att_reg", help="use attention regularization on the lemma attention (def: False)", action="store_true")
 parser.add_argument("--use_tag_att_reg", help="use attention regularization on the tag attention (def: False)", action="store_true")
+parser.add_argument("--dynet-mem", help="set dynet memory", default=800, type=int, required=False)
+parser.add_argument("--dynet-autobatch", help="use dynet autobatching (def: 1)", default=1, type=int, required=False)
 args = parser.parse_args()
 
-L1 = args.L1
-L1s = L1.split(',')
+if args.L1:
+    L1 = args.L1
+    L1s = L1.split(',')
+else:
+    L1 = ''
+    L1s = []
 
 L2 = args.L2
 DATA_PATH = args.datapath

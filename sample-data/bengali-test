@@ -1,0 +1,100 @@
+খাওয়া	খেয়েছিস	V;2;PRS;PRF;LGSPEC1
+ভরা	ভরবো	V;1;FUT
+ভালবাসা	ভালবাসছিলি	V;2;PST;PROG;LGSPEC1
+ঘটনা	ঘটনার	N;GEN;NDEF
+কাটা	কাটতিস	V;2;PST;HAB;LGSPEC1
+হাত মারা	হাত মারতে	V;3;PST;HAB;INFM
+প্রমাণ করা	প্রমাণ করেছিস	V;2;PRS;PRF;LGSPEC1
+ঘৃণা করা	ঘৃণা করলে	V;V.PTCP;COND
+জ্বালাতন করা	জ্বালাতন করছিলে	V;3;PST;PROG;INFM
+চেনা	চিনবেন	V;3;FUT;POL
+চালানো	চালিয়েছে	V;2;PRS;PRF;POL
+বৃষ্টি হওয়া	বৃষ্টি হচ্ছেন	V;3;PRS;PROG;POL
+রাখা	রেখেছিলে	V;3;PST;PRF;INFM
+ভাবা	ভাবছি	V;1;PRS;PROG
+জাগানো	জাগিয়েছিলি	V;2;PST;PRF;LGSPEC1
+গাওয়া	গেতেন	V;3;PST;HAB;POL
+ডিফ্র্যাগমেন্ট করা	ডিফ্র্যাগমেন্ট করলি	V;2;PST;LGSPEC1
+চোষা	চুষছিলেন	V;3;PST;PROG;POL
+ভালবাসা	ভালবাসতো	V;2;PST;HAB;POL
+হাত মারা	হাত মারছি	V;1;PRS;PROG
+ব্যবহার করা	ব্যবহার করেছিলি	V;2;PST;PRF;LGSPEC1
+বলা	বলে	V;2;PRS;POL
+উপজেলা	উপজেলাগুলা	N;ACC;PL;DEF
+দেখা	দেখেছি	V;1;PRS;PRF
+গেলা	গিলবে	V;2;FUT;POL
+লুকানো	লুকালে	V;V.PTCP;COND
+ঢুকানো	ঢুকাবো	V;1;FUT
+ব্যবহার করা	ব্যবহার করেছিলেন	V;3;PST;PRF;POL
+অঙ্গ	অঙ্গের	N;GEN;NDEF
+ডিফ্র্যাগমেন্ট করা	ডিফ্র্যাগমেন্ট করেন	V;3;PRS;POL
+পরা	পরলি	V;2;PST;LGSPEC1
+নেওয়া	নিয়েছিলাম	V;1;PST;PRF
+প্রশ্ন করা	প্রশ্ন করতিস	V;2;PST;HAB;LGSPEC1
+ঘটনা	ঘটনাগুলা	N;ACC;PL;DEF
+পাওয়া	পাচ্ছেন	V;3;PRS;PROG;POL
+উদ্দেশ্য	উদ্দেশ্যটাতে	N;LOC;SG;DEF
+অনুরোধ করা	অনুরোধ করছিলেন	V;3;PST;PROG;POL
+জ্বালাতন করা	জ্বালাতন করছিলি	V;2;PST;PROG;LGSPEC1
+ভাঙা	ভাঙতে	V;V.NFIN
+ঘুমানো	ঘুমিয়েছিলি	V;2;PST;PRF;LGSPEC1
+বোন	বোনটা	N;NOM;SG;DEF
+অনুবাদ করা	অনুবাদ করবে	V;2;FUT;POL
+চাটা	চেটেছিলি	V;2;PST;PRF;LGSPEC1
+বসা	বসবো	V;1;FUT
+হাঁটা	হাঁটিস	V;2;PRS;LGSPEC1
+নাম	নামটাতে	N;LOC;SG;DEF
+খোঁজা	খুঁজতে	V;V.PTCP;PROG
+হাঁটা	হেঁটেছো	V;3;PRS;PRF;INFM
+জানা	জানিস	V;2;PRS;LGSPEC1
+অপেক্ষা করা	অপেক্ষা করবে	V;3;FUT;INFM
+নেওয়া	নিয়েছো	V;3;PRS;PRF;INFM
+এলাকা	এলাকাটার	N;GEN;SG;DEF
+নেওয়া	নিতাম	V;1;PST;HAB
+গলা	গলা	N;NOM;NDEF
+ওঠা	উঠছো	V;3;PRS;PROG;INFM
+শিশ্ন	শিশ্নটাতে	N;LOC;SG;DEF
+ভরা	ভরেছিলেন	V;3;PST;PRF;POL
+ভুলে যাওয়া	ভুলে গিয়েছিস	V;2;PRS;PRF;LGSPEC1
+মনে রাখা	মনে রেখেছেন	V;3;PRS;PRF;POL
+চাওয়া	চাবে	V;3;FUT;INFM
+শেখা	শিখেছিলাম	V;1;PST;PRF
+বলা	বলছেন	V;3;PRS;PROG;POL
+প্রশ্ন করা	প্রশ্ন করবে	V;3;FUT;INFM
+পাঠানো	পাঠিয়েছিলে	V;3;PST;PRF;INFM
+শেখা	শিখেছিলি	V;2;PST;PRF;LGSPEC1
+বসা	বসছিলে	V;3;PST;PROG;INFM
+ঘামানো	ঘামিয়েছিস	V;2;PRS;PRF;LGSPEC1
+ইচ্ছা হওয়া	ইচ্ছা হচ্ছেন	V;3;PRS;PROG;POL
+আগানো	আগাতে	V;V.NFIN
+ভালবাসা	ভালবাসছিলে	V;3;PST;PROG;INFM
+ঢোকা	ঢুকেছিলাম	V;1;PST;PRF
+ঢোকা	ঢুকিস	V;2;PRS;LGSPEC1
+পরা	পরছো	V;3;PRS;PROG;INFM
+ভালোবাসা	ভালোবেসে	V;V.PTCP;HAB
+হাঁটা	হাঁটতে	V;3;PST;HAB;INFM
+অনুভব করা	অনুভব করেছিলাম	V;1;PST;PRF
+ওঠা	উঠতে	V;V.PTCP;PROG
+খোঁজা	খুঁজিস	V;2;PRS;LGSPEC1
+চাওয়া	চেতো	V;2;PST;HAB;POL
+চাটা	চাটো	V;3;PRS;INFM
+ফেলা	ফেলিস	V;2;PRS;LGSPEC1
+লিঙ্গ	লিঙ্গগুলাতে	N;LOC;PL;DEF
+জানা	জানতেন	V;3;PST;HAB;POL
+টাইপ করা	টাইপ করি	V;1;PRS
+ভালোবাসা	ভালোবাসছিলেন	V;3;PST;PROG;POL
+গেলা	গিলবি	V;2;FUT;LGSPEC1
+চুম্বন করা	চুম্বন করে	V;V.PTCP;PRF
+ভালবাসা	ভালবেসে	V;V.PTCP;PRF
+ঘামা	ঘামছিলো	V;2;PST;PROG;POL
+যৌনকর্মী	যৌনকর্মীটা	N;NOM;SG;DEF
+বিশেষ করা	বিশেষ করছি	V;1;PRS;PROG
+ধরা	ধরবে	V;2;FUT;POL
+ভরা	ভরেছিলাম	V;1;PST;PRF
+পাঠানো	পাঠাবেন	V;3;FUT;POL
+মারা	মেরে	V;V.PTCP;HAB
+চোষা	চুষছি	V;1;PRS;PROG
+টাইপ করা	টাইপ করছো	V;3;PRS;PROG;INFM
+ভালোবাসা	ভালোবাসেন	V;3;PRS;POL
+করা	করলি	V;2;PST;LGSPEC1
+ভাষা	ভাষাগুলার	N;GEN;PL;DEF

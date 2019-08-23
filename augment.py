@@ -137,6 +137,6 @@ i = [c for c in i if c]
 o = [c for c in o if c]
 t = [c for c in t if c]
 
-with codecs.open(DATA_PATH+L2+"-hall", 'w', 'utf-8') as outp:
+with codecs.open(os.path.join(DATA_PATH,L2+"-hall"), 'w', 'utf-8') as outp:
 	for k in range(min(N, len(i))):
 		outp.write(''.join(i[k]) + '\t' + ''.join(o[k]) + '\t' + ';'.join(t[k]) + '\n')

@@ -1,0 +1,100 @@
+খাওয়া	V;2;PRS;PRF;LGSPEC1
+ভরা	V;1;FUT
+ভালবাসা	V;2;PST;PROG;LGSPEC1
+ঘটনা	N;GEN;NDEF
+কাটা	V;2;PST;HAB;LGSPEC1
+হাত মারা	V;3;PST;HAB;INFM
+প্রমাণ করা	V;2;PRS;PRF;LGSPEC1
+ঘৃণা করা	V;V.PTCP;COND
+জ্বালাতন করা	V;3;PST;PROG;INFM
+চেনা	V;3;FUT;POL
+চালানো	V;2;PRS;PRF;POL
+বৃষ্টি হওয়া	V;3;PRS;PROG;POL
+রাখা	V;3;PST;PRF;INFM
+ভাবা	V;1;PRS;PROG
+জাগানো	V;2;PST;PRF;LGSPEC1
+গাওয়া	V;3;PST;HAB;POL
+ডিফ্র্যাগমেন্ট করা	V;2;PST;LGSPEC1
+চোষা	V;3;PST;PROG;POL
+ভালবাসা	V;2;PST;HAB;POL
+হাত মারা	V;1;PRS;PROG
+ব্যবহার করা	V;2;PST;PRF;LGSPEC1
+বলা	V;2;PRS;POL
+উপজেলা	N;ACC;PL;DEF
+দেখা	V;1;PRS;PRF
+গেলা	V;2;FUT;POL
+লুকানো	V;V.PTCP;COND
+ঢুকানো	V;1;FUT
+ব্যবহার করা	V;3;PST;PRF;POL
+অঙ্গ	N;GEN;NDEF
+ডিফ্র্যাগমেন্ট করা	V;3;PRS;POL
+পরা	V;2;PST;LGSPEC1
+নেওয়া	V;1;PST;PRF
+প্রশ্ন করা	V;2;PST;HAB;LGSPEC1
+ঘটনা	N;ACC;PL;DEF
+পাওয়া	V;3;PRS;PROG;POL
+উদ্দেশ্য	N;LOC;SG;DEF
+অনুরোধ করা	V;3;PST;PROG;POL
+জ্বালাতন করা	V;2;PST;PROG;LGSPEC1
+ভাঙা	V;V.NFIN
+ঘুমানো	V;2;PST;PRF;LGSPEC1
+বোন	N;NOM;SG;DEF
+অনুবাদ করা	V;2;FUT;POL
+চাটা	V;2;PST;PRF;LGSPEC1
+বসা	V;1;FUT
+হাঁটা	V;2;PRS;LGSPEC1
+নাম	N;LOC;SG;DEF
+খোঁজা	V;V.PTCP;PROG
+হাঁটা	V;3;PRS;PRF;INFM
+জানা	V;2;PRS;LGSPEC1
+অপেক্ষা করা	V;3;FUT;INFM
+নেওয়া	V;3;PRS;PRF;INFM
+এলাকা	N;GEN;SG;DEF
+নেওয়া	V;1;PST;HAB
+গলা	N;NOM;NDEF
+ওঠা	V;3;PRS;PROG;INFM
+শিশ্ন	N;LOC;SG;DEF
+ভরা	V;3;PST;PRF;POL
+ভুলে যাওয়া	V;2;PRS;PRF;LGSPEC1
+মনে রাখা	V;3;PRS;PRF;POL
+চাওয়া	V;3;FUT;INFM
+শেখা	V;1;PST;PRF
+বলা	V;3;PRS;PROG;POL
+প্রশ্ন করা	V;3;FUT;INFM
+পাঠানো	V;3;PST;PRF;INFM
+শেখা	V;2;PST;PRF;LGSPEC1
+বসা	V;3;PST;PROG;INFM
+ঘামানো	V;2;PRS;PRF;LGSPEC1
+ইচ্ছা হওয়া	V;3;PRS;PROG;POL
+আগানো	V;V.NFIN
+ভালবাসা	V;3;PST;PROG;INFM
+ঢোকা	V;1;PST;PRF
+ঢোকা	V;2;PRS;LGSPEC1
+পরা	V;3;PRS;PROG;INFM
+ভালোবাসা	V;V.PTCP;HAB
+হাঁটা	V;3;PST;HAB;INFM
+অনুভব করা	V;1;PST;PRF
+ওঠা	V;V.PTCP;PROG
+খোঁজা	V;2;PRS;LGSPEC1
+চাওয়া	V;2;PST;HAB;POL
+চাটা	V;3;PRS;INFM
+ফেলা	V;2;PRS;LGSPEC1
+লিঙ্গ	N;LOC;PL;DEF
+জানা	V;3;PST;HAB;POL
+টাইপ করা	V;1;PRS
+ভালোবাসা	V;3;PST;PROG;POL
+গেলা	V;2;FUT;LGSPEC1
+চুম্বন করা	V;V.PTCP;PRF
+ভালবাসা	V;V.PTCP;PRF
+ঘামা	V;2;PST;PROG;POL
+যৌনকর্মী	N;NOM;SG;DEF
+বিশেষ করা	V;1;PRS;PROG
+ধরা	V;2;FUT;POL
+ভরা	V;1;PST;PRF
+পাঠানো	V;3;FUT;POL
+মারা	V;V.PTCP;HAB
+চোষা	V;1;PRS;PROG
+টাইপ করা	V;3;PRS;PROG;INFM
+ভালোবাসা	V;3;PRS;POL
+করা	V;2;PST;LGSPEC1
+ভাষা	N;GEN;PL;DEF
