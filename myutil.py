@@ -61,6 +61,14 @@ def read_bpe_data(filename):
             tags.append(re.split('\W+', l[2]))
     return inputs, outputs, tags
 
+def write_vocab(l,filename):
+    with open(filename, 'w') as outp:
+        outp.write(' '.join(l))
+
+def read_vocab(filename):
+    with open(filename) as inp:
+        lines = inp.readlines()
+    return lines[0].strip().split()
 
 
 def argmax(arr, k):

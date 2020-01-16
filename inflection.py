@@ -59,16 +59,20 @@ if not os.path.isdir(args.figurepath):
 if not os.path.isdir(args.outputpath):
     os.mkdir(args.outputpath)
 
+if L1:
+    exp_dir = L1+"-"+L2
+else:
+    exp_dir = L2
 
-MODEL_DIR = os.path.join(args.modelpath, L1+"-"+L2)
+MODEL_DIR = os.path.join(args.modelpath, exp_dir)
 if not os.path.isdir(MODEL_DIR):
     os.mkdir(MODEL_DIR)
 
-FIGURE_DIR = os.path.join(args.figurepath, L1+"-"+L2)
+FIGURE_DIR = os.path.join(args.figurepath, exp_dir)
 if not os.path.isdir(FIGURE_DIR):
     os.mkdir(FIGURE_DIR)
 
-OUTPUT_DIR = os.path.join(args.outputpath, L1+"-"+L2)
+OUTPUT_DIR = os.path.join(args.outputpath, exp_dir)
 if not os.path.isdir(OUTPUT_DIR):
     os.mkdir(OUTPUT_DIR)
 
@@ -282,16 +286,25 @@ def get_tags(l):
     return list(set(flat_list))
 
 EOS = "<EOS>"
-#SOS = "<SOS>"
-characters = get_chars(high_i+high_o+low_i+low_o+dev_i+dev_o+test_i)
-#characters.append(SOS)
-characters.append(EOS)
-if u' '  not in characters:
-    characters.append(u' ')
-
 NULL = "<NULL>"
-tags = get_tags(high_t+low_t+dev_t+test_t)
-tags.append(NULL)
+
+if TRAIN:
+    #SOS = "<SOS>"
+    characters = get_chars(high_i+high_o+low_i+low_o+dev_i+dev_o+test_i)
+    #characters.append(SOS)
+    characters.append(EOS)
+    if u' '  not in characters:
+        characters.append(u' ')
+
+    tags = get_tags(high_t+low_t+dev_t+test_t)
+    tags.append(NULL)
+
+    #Store vocabularies for future reference
+    myutil.write_vocab(chatacters, os.path.join(MODEL_DIR, MODEL_NAME+"char.vocab"))
+    myutil.write_vocab(tags, os.path.join(MODEL_DIR, MODEL_NAME+"tag.vocab"))
+else:
+    characters = myutil.read_vocab(os.path.join(MODEL_DIR, MODEL_NAME+"char.vocab"))
+    tags = myutil.read_vocab(os.path.join(MODEL_DIR, MODEL_NAME+"tag.vocab"))
 
 int2char = list(characters)
 char2int = {c:i for i,c in enumerate(characters)}
@@ -301,6 +314,7 @@ tag2int = {c:i for i,c in enumerate(tags)}
 
 VOCAB_SIZE = len(characters)
 TAG_VOCAB_SIZE = len(tags)
+
 
 LSTM_NUM_OF_LAYERS = 1
 EMBEDDINGS_SIZE = 32
