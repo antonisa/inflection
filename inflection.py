@@ -300,10 +300,12 @@ if TRAIN:
     tags.append(NULL)
 
     #Store vocabularies for future reference
-    myutil.write_vocab(chatacters, os.path.join(MODEL_DIR, MODEL_NAME+"char.vocab"))
+    myutil.write_vocab(characters, os.path.join(MODEL_DIR, MODEL_NAME+"char.vocab"))
     myutil.write_vocab(tags, os.path.join(MODEL_DIR, MODEL_NAME+"tag.vocab"))
 else:
     characters = myutil.read_vocab(os.path.join(MODEL_DIR, MODEL_NAME+"char.vocab"))
+    if u' '  not in characters:
+        characters.append(u' ')
     tags = myutil.read_vocab(os.path.join(MODEL_DIR, MODEL_NAME+"tag.vocab"))
 
 int2char = list(characters)
