@@ -25,6 +25,9 @@ parser.add_argument("--setting", help="data setting", type=str, choices=['origin
 parser.add_argument("--modelpath", help="path to store the models", type=str, default='./models')
 parser.add_argument("--figurepath", help="path to store the output attention figures", type=str, default='./figures')
 parser.add_argument("--outputpath", help="path to store the inflected outputs on the test set", type=str, default='./outputs')
+parser.add_argument("--notest", help="do not use the test set at all", type=str, required=False)
+parser.add_argument("--testset", help="path to different test set", type=str, required=False)
+parser.add_argument("--outputfile", help="path to store the inflected outputs", type=str, required=False)
 parser.add_argument("--use_hall", help="whether to use a hallucinated dataset (def: False)", action="store_true")
 parser.add_argument("--only_hall", help="only use the hallucinated dataset to train (def: False)", action="store_true")
 parser.add_argument("--predict_lang", help="use the language discriminator auxiliary task (def: False)", action="store_true")
@@ -51,6 +54,8 @@ LOW_PATH = os.path.join(DATA_PATH, L2+ "-train")
 DEV_PATH = os.path.join(DATA_PATH, L2+ "-dev")
 HALL_PATH = os.path.join(DATA_PATH, L2+ "-hall")
 TEST_PATH = os.path.join(DATA_PATH, L2+ "-test-covered")
+if args.testset:
+    TEST_PATH = args.testset
 
 if not os.path.isdir(args.modelpath):
     os.mkdir(args.modelpath)
@@ -190,7 +195,10 @@ if args.use_tag_att_reg:
 if USE_HALL:
     low_i, low_o, low_t = myutil.read_data(LOW_PATH)
     dev_i, dev_o, dev_t = myutil.read_data(DEV_PATH)
-    test_i, test_t = myutil.read_test_data(TEST_PATH)
+    if args.notest:
+        test_i, test_t = dev_i, dev_t
+    else:
+        test_i, test_t = myutil.read_test_data(TEST_PATH)
     hall_i, hall_o, hall_t = myutil.read_data(HALL_PATH)
     low_i += hall_i
     low_o += hall_o
@@ -209,7 +217,10 @@ elif ONLY_HALL:
     high_i, high_o, high_t = [], [], []
     low_i, low_o, low_t = myutil.read_data(LOW_PATH)
     dev_i, dev_o, dev_t = myutil.read_data(DEV_PATH)
-    test_i, test_t = myutil.read_test_data(TEST_PATH)
+    if args.notest:
+        test_i, test_t = dev_i, dev_t
+    else:
+        test_i, test_t = myutil.read_test_data(TEST_PATH)
     hall_i, hall_o, hall_t = myutil.read_data(HALL_PATH)
     low_i += hall_i
     low_o += hall_o
@@ -217,7 +228,10 @@ elif ONLY_HALL:
 else:
     low_i, low_o, low_t = myutil.read_data(LOW_PATH)
     dev_i, dev_o, dev_t = myutil.read_data(DEV_PATH)
-    test_i, test_t = myutil.read_test_data(TEST_PATH)
+    if args.notest:
+        test_i, test_t = dev_i, dev_t
+    else:
+        test_i, test_t = myutil.read_test_data(TEST_PATH)
     high_i, high_o, high_t = [], [], []
     lids_1 = [0]*len(low_i) 
     for j,L1 in enumerate(L1s):
@@ -746,7 +760,10 @@ class InflectionModel:
 
     def generate_nbest(self, in_seq, tag_seq, beam_size=4, show_att=False, show_tag_att=False, fn=None):
         dy.renew_cg()
-        embedded = self.embed_sentence(in_seq)
+        try:
+            embedded = self.embed_sentence(in_seq)
+        except:
+            return []
         encoded = self.encode_sentence(embedded)
         
         embedded_tags = self.embed_tags(tag_seq)
@@ -1523,7 +1540,10 @@ elif TEST_DEV_ENSEMBLE:
 elif TEST:
     inflection_model = InflectionModel()
     inflection_model.model.populate(os.path.join(MODEL_DIR, MODEL_NAME+"acc.model"))
-    test_beam(inflection_model, 8, os.path.join(OUTPUT_DIR,MODEL_NAME+"test.output"))
+    if args.outputfile:
+        test_beam(inflection_model, 8, args.outputfile)
+    else:
+        test_beam(inflection_model, 8, os.path.join(OUTPUT_DIR,MODEL_NAME+"test.output"))
 
 
 elif TEST_ENSEMBLE:
