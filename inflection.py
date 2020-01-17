@@ -25,7 +25,7 @@ parser.add_argument("--setting", help="data setting", type=str, choices=['origin
 parser.add_argument("--modelpath", help="path to store the models", type=str, default='./models')
 parser.add_argument("--figurepath", help="path to store the output attention figures", type=str, default='./figures')
 parser.add_argument("--outputpath", help="path to store the inflected outputs on the test set", type=str, default='./outputs')
-parser.add_argument("--notest", help="do not use the test set at all", type=str, required=False)
+parser.add_argument("--notest", help="do not use the test set at all", action="store_true")
 parser.add_argument("--testset", help="path to different test set", type=str, required=False)
 parser.add_argument("--outputfile", help="path to store the inflected outputs", type=str, required=False)
 parser.add_argument("--use_hall", help="whether to use a hallucinated dataset (def: False)", action="store_true")
